@@ -1,3 +1,4 @@
+import 'package:blood_sugar_app/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
 import 'graph_screen.dart';
@@ -18,9 +19,11 @@ class BloodSugarApp extends StatelessWidget {
     return MaterialApp(
       title: '혈당 관리 앱',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.amber,  // ✅ 노란색 테마
+        scaffoldBackgroundColor: Colors.amber[50], // 배경색도 부드러운 노란색으로
+
       ),
-      home: BloodSugarInputScreen(),
+      home: SplashScreen(),
     );
   }
 }

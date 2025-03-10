@@ -96,7 +96,14 @@ class _BloodSugarInputScreenState extends State<BloodSugarInputScreen> {
               onChanged: (value) => setState(() => memo = value),
             ),
             SizedBox(height: 20),
-            ElevatedButton(onPressed: _saveBloodSugar, child: Text('저장')),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber, // ✅ 노란색 버튼
+                  foregroundColor: Colors.white, // 글자 색상
+                ),
+                onPressed: _saveBloodSugar,
+                child: Text('저장')
+            ),
 
             SizedBox(height: 20),
 
@@ -108,6 +115,7 @@ class _BloodSugarInputScreenState extends State<BloodSugarInputScreen> {
                 itemBuilder: (context, index) {
                   final record = bloodSugarList[index];
                   return Card(
+                    color: Colors.amber[200], // ✅ 혈당 팁 카드도 노란색으로 변경
                     child: ListTile(
                       title: Text('혈당: ${record['value']} mg/dL'),
                       subtitle: Text('${record['date']} | ${record['meal']} | ${record['exercise']}'),
