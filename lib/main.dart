@@ -1,18 +1,20 @@
-import 'package:blood_sugar_app/splash_screen.dart';
+import 'package:blood_sugar_app/splash_screen.dart'; // 앱 실행 시 처음 스플래시 화면
 import 'package:flutter/material.dart';
-import 'database_helper.dart';
-import 'graph_screen.dart';
-import 'tips.dart';
+import 'database_helper.dart'; // 혈당 데이터 저장할 데이터베이스 연결
+import 'graph_screen.dart'; // 혈당 그래프 화면
+import 'tips.dart'; // 혈당 관리 팁 기능
 import 'package:intl/intl.dart'; // 날짜 포맷 라이브러리 추가
-import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz; // 타임존 변환을 위한 라이브러리
 import 'package:timezone/timezone.dart' as tz;
-import 'blood_sugar_input.dart'; // ✅ 혈당 입력 화면 가져오기
+import 'blood_sugar_input.dart'; // 혈당 입력 화면 가져오기
 
+//앱 실행 시 초기 설정
 void main() {
   tz.initializeTimeZones(); // 타임존 데이터 초기화
-  runApp(BloodSugarApp());
+  runApp(BloodSugarApp()); // 앱을 실행하면서 BloodSugarApp() 위젯을 루트로 설정한다.
 }
 
+//엡의 전체 UI 테마 설정
 class BloodSugarApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -23,16 +25,18 @@ class BloodSugarApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.amber[50], // 배경색도 부드러운 노란색으로
 
       ),
-      home: SplashScreen(),
+      home: BloodSugarInputScreen(),//앱 실행 시 첫 화면 스플래시로
     );
   }
 }
 
+// 혈당 입력 화면
 class BloodSugarInputScreen extends StatefulWidget {
   @override
   _BloodSugarInputScreenState createState() => _BloodSugarInputScreenState();
 }
 
+// 혈당 입력 로직 및 UI
 class _BloodSugarInputScreenState extends State<BloodSugarInputScreen> {
   final TextEditingController _controller = TextEditingController();
   String? selectedMeal;
@@ -47,6 +51,7 @@ class _BloodSugarInputScreenState extends State<BloodSugarInputScreen> {
   @override
   void initState() {
     super.initState();
+    print("🚀 BloodSugarInputScreen이 로드되었습니다!");
     _loadBloodSugarRecords();
   }
 
@@ -101,6 +106,8 @@ class _BloodSugarInputScreenState extends State<BloodSugarInputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("🛠 UI 빌드 중...");
+
     return Scaffold(
       appBar: AppBar(title: Text('혈당 입력')),
       body: Padding(

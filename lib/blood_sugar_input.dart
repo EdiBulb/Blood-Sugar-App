@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'database_helper.dart'; // ✅ SQLite 데이터베이스 불러오기
+import 'blood_sugar_records.dart'; // ✅ 추가된 혈당 기록 화면 import
 
 class BloodSugarInputScreen extends StatefulWidget {
   @override
@@ -46,6 +47,7 @@ class _BloodSugarInputScreenState extends State<BloodSugarInputScreen> {
     };
 
     await DatabaseHelper.instance.insertBloodSugar(newRecord); // ✅ DB에 저장
+    _bloodSugarController.clear();
 
     setState(() {
       bloodSugarList.insert(0, newRecord); // ✅ 리스트에 새 데이터 추가 (최신 데이터가 위로)
@@ -68,67 +70,85 @@ class _BloodSugarInputScreenState extends State<BloodSugarInputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("🛠 UI가 렌더링되고 있습니다...");
+
     return Scaffold(
-      appBar: AppBar(title: Text('혈당 기록 입력')),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _bloodSugarController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: '혈당 수치 입력'),
-            ),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(labelText: '식사 여부'),
-              value: selectedMeal,
-              items: meals.map((meal) => DropdownMenuItem(value: meal, child: Text(meal))).toList(),
-              onChanged: (value) => setState(() => selectedMeal = value),
-            ),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(labelText: '운동 여부'),
-              value: selectedExercise,
-              items: exercises.map((exercise) => DropdownMenuItem(value: exercise, child: Text(exercise))).toList(),
-              onChanged: (value) => setState(() => selectedExercise = value),
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: '메모 (선택)'),
-              onChanged: (value) => setState(() => memo = value),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber, // ✅ 노란색 버튼
-                  foregroundColor: Colors.white, // 글자 색상
-                ),
+      appBar: AppBar(title: Text('혈당 입력')),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // ✅ Column 크기를 최소화하여 버튼이 보이도록 함
+            children: [
+              TextField(
+                controller: _bloodSugarController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: '혈당 수치 입력'),
+              ),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(labelText: '식사 여부'),
+                value: selectedMeal,
+                items: meals.map((meal) => DropdownMenuItem(value: meal, child: Text(meal))).toList(),
+                onChanged: (value) => setState(() => selectedMeal = value),
+              ),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(labelText: '운동 여부'),
+                value: selectedExercise,
+                items: exercises.map((exercise) => DropdownMenuItem(value: exercise, child: Text(exercise))).toList(),
+                onChanged: (value) => setState(() => selectedExercise = value),
+              ),
+              TextField(
+                decoration: InputDecoration(labelText: '메모 (선택)'),
+                onChanged: (value) => setState(() => memo = value),
+              ),
+              SizedBox(height: 20),
+
+              // ✅ 저장 버튼
+              ElevatedButton(
                 onPressed: _saveBloodSugar,
-                child: Text('저장')
-            ),
+                child: Text('저장'),
+              ),
+              SizedBox(height: 10),
 
-            SizedBox(height: 20),
-
-            Expanded(
-              child: bloodSugarList.isEmpty
-                  ? Center(child: Text('저장된 혈당 기록이 없습니다.'))
-                  : ListView.builder(
-                itemCount: bloodSugarList.length,
-                itemBuilder: (context, index) {
-                  final record = bloodSugarList[index];
-                  return Card(
-                    color: Colors.amber[200], // ✅ 혈당 팁 카드도 노란색으로 변경
-                    child: ListTile(
-                      title: Text('혈당: ${record['value']} mg/dL'),
-                      subtitle: Text('${record['date']} | ${record['meal']} | ${record['exercise']}'),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteBloodSugar(index, record['id']), // ✅ 삭제 기능 추가
-                      ),
-                    ),
+              // ✅ 기록 보기 버튼 (올바르게 표시)
+              ElevatedButton(
+                onPressed: () {
+                  print("📌 기록 보기 버튼이 눌렸습니다.");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => BloodSugarRecordsScreen()),
                   );
                 },
+                child: Text('기록 보기'),
               ),
-            ),
-          ],
+
+              SizedBox(height: 20),
+
+              // ✅ 리스트가 UI를 밀어내지 않도록 설정
+              if (bloodSugarList.isEmpty)
+                Center(child: Text('저장된 혈당 기록이 없습니다.'))
+              else
+                ListView.builder(
+                  shrinkWrap: true, // ✅ 리스트 크기를 자동으로 조절
+                  physics: NeverScrollableScrollPhysics(), // ✅ 내부에서 별도 스크롤 안 하도록 설정
+                  itemCount: bloodSugarList.length,
+                  itemBuilder: (context, index) {
+                    final record = bloodSugarList[index];
+                    return Card(
+                      color: Colors.amber[200], // ✅ 혈당 팁 카드도 노란색으로 변경
+                      child: ListTile(
+                        title: Text('혈당: ${record['value']} mg/dL'),
+                        subtitle: Text('${record['date']} | ${record['meal']} | ${record['exercise']}'),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _deleteBloodSugar(index, record['id']), // ✅ 삭제 기능 추가
+                        ),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
         ),
       ),
     );
